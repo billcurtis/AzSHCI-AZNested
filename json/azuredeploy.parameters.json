@@ -2,9 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
-            "value": "eastus2"
-        },
         "networkInterfaceName": {
             "value": "ashcihost001-Nic1"
         },
@@ -64,9 +61,7 @@
         "virtualMachineComputerName": {
             "value": "ASHCIHost001"
         },
-        "virtualMachineRG": {
-            "value": "HCI-Testing"
-        },
+        
         "osDiskType": {
             "value": "Premium_LRS"
         },
@@ -247,7 +242,7 @@
             ]
         },
         "virtualMachineSize": {
-            "value": "Standard_D16s_v3"
+            "value": "Standard_D32s_v4"
         },
         "adminUsername": {
             "value": "AzureAdmin"

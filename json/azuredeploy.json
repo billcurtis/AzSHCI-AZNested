@@ -2,60 +2,67 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
-            "type": "string"
-        },
-        "networkInterfaceName": {
-            "type": "string"
+            "networkInterfaceName": {
+            "type": "string",
+            "defaultValue": "ashcihost001-Nic1"
         },
         "networkSecurityGroupName": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "ASHCIHost001-nsg"
         },
         "networkSecurityGroupRules": {
             "type": "array"
         },
         "subnetName": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "default"
         },
         "virtualNetworkName": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "ASHCIHost-Vnet"
         },
         "addressPrefixes": {
-            "type": "array"
+            "type": "array",
+            "defaultValue": "10.0.0.0/24"
         },
         "subnets": {
             "type": "array"
         },
+
         "publicIpAddressName": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "ASHCIHost001-Publicip"
         },
         "publicIpAddressType": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "Dynamic"
         },
         "publicIpAddressSku": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "Basic"
         },
         "virtualMachineName": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "ASHCIHost001"
         },
         "virtualMachineComputerName": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "ASHCIHost001"
         },
-        "virtualMachineRG": {
-            "type": "string"
-        },
+        
         "osDiskType": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "Premium_LRS"
         },
         "dataDisks": {
-            "type": "array"
+            "type":"array"
         },
         "dataDiskResources": {
             "type": "array"
         },
         "virtualMachineSize": {
             "type": "string",
-            "defaultValue": "Standard_E16s_v4",
+            "defaultValue": "Standard_E32s_v3",
             "allowedValues": [
                 "Standard_D16s_v3",
                 "Standard_D32s_v3",
@@ -109,20 +116,15 @@
             ]
         },
         "adminUsername": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "AzureAdmin"
         },
         "adminPassword": {
             "type": "secureString"
         },
         "patchMode": {
-            "type": "string"
-        },
-        "AutomationAccountName": {
             "type": "string",
-            "metadata": {
-                "description": "description"
-            },
-            "defaultvalue":"ASHCIAutomation"
+            "defaultValue": "AutomaticByOS"
         },
         "customRdpPort": {
             "type": "string",
@@ -299,7 +301,7 @@
             "name": "[parameters('networkInterfaceName')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-06-01",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
@@ -329,7 +331,7 @@
             "name": "[parameters('networkSecurityGroupName')]",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-02-01",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": "[parameters('networkSecurityGroupRules')]"
             }
@@ -338,7 +340,7 @@
             "name": "[parameters('virtualNetworkName')]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-09-01",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": "[parameters('addressPrefixes')]"
@@ -350,7 +352,7 @@
             "name": "[parameters('publicIpAddressName')]",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2019-02-01",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "publicIpAllocationMethod": "[parameters('publicIpAddressType')]"
             },
@@ -362,7 +364,7 @@
             "name": "[parameters('dataDiskResources')[copyIndex()].name]",
             "type": "Microsoft.Compute/disks",
             "apiVersion": "2020-09-30",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "properties": "[parameters('dataDiskResources')[copyIndex()].properties]",
             "sku": {
                 "name": "[parameters('dataDiskResources')[copyIndex()].sku]"
@@ -376,7 +378,7 @@
             "name": "[parameters('virtualMachineName')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2020-12-01",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "managedDiskResources",
                 "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]"
@@ -479,19 +481,7 @@
             ]
         
         },
-        {
-            "name": "[parameters('AutomationAccountName')]",
-            "type": "Microsoft.Automation/automationAccounts",
-            "apiVersion": "2015-10-31",
-            "location": "[resourceGroup().location]",
-            "tags": {
-            },
-            "properties": {
-                "sku": {
-                    "name": "Free"
-                }
-            }
-        },
+        
         {
             "name": "[concat('shutdown-computevm-', parameters('virtualMachineName'))]",
             "type": "Microsoft.DevTestLab/schedules",
